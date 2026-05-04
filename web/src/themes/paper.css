@@ -1,0 +1,37 @@
+:root {
+  --background: oklch(0.972 0.014 84);
+  --foreground: oklch(0.33 0.03 63);
+  --card: oklch(0.992 0.008 82);
+  --card-foreground: oklch(0.31 0.028 63);
+  --popover: oklch(0.992 0.008 82);
+  --popover-foreground: oklch(0.31 0.028 63);
+  --primary: oklch(0.65 0.116 53);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.948 0.018 82);
+  --secondary-foreground: oklch(0.4 0.03 61);
+  --muted: oklch(0.942 0.016 82);
+  --muted-foreground: oklch(0.56 0.022 60);
+  --accent: oklch(0.926 0.026 72);
+  --accent-foreground: oklch(0.35 0.034 59);
+  --destructive: oklch(0.48 0.15 25);
+  --destructive-foreground: oklch(0.98 0.008 80);
+  --border: oklch(0.884 0.016 79);
+  --input: oklch(0.874 0.02 78);
+  --ring: oklch(0.65 0.116 53);
+  --sidebar: oklch(0.966 0.012 84);
+  --sidebar-foreground: oklch(0.31 0.028 63);
+  --sidebar-accent: oklch(0.938 0.022 73);
+  --sidebar-accent-foreground: oklch(0.34 0.03 60);
+  --shadow-xs: 0 1px 2px 0 hsl(22 22% 35% / 0.05);
+  --shadow-sm: 0 8px 20px -16px hsl(22 22% 35% / 0.16), 0 2px 8px 0 hsl(22 22% 35% / 0.06);
+  --shadow: 0 12px 28px -18px hsl(22 22% 35% / 0.18), 0 2px 10px 0 hsl(22 22% 35% / 0.08);
+  --shadow-md: 0 20px 42px -26px hsl(22 22% 35% / 0.22), 0 6px 18px 0 hsl(22 22% 35% / 0.08);
+  --shadow-lg: 0 28px 56px -30px hsl(22 22% 35% / 0.26), 0 10px 24px 0 hsl(22 22% 35% / 0.09);
+  --shadow-xl: 0 36px 72px -36px hsl(22 22% 35% / 0.28), 0 14px 28px 0 hsl(22 22% 35% / 0.1);
+  --shadow-2xl: 0 42px 80px -34px hsl(22 22% 35% / 0.32), 0 16px 30px 0 hsl(22 22% 35% / 0.12);
+  --memo-surface: color-mix(in oklch, var(--card) 92%, white 8%);
+  --memo-surface-strong: color-mix(in oklch, var(--accent) 54%, var(--card) 46%);
+  --memo-chip: color-mix(in oklch, var(--accent) 68%, white 32%);
+  --memo-chip-foreground: color-mix(in oklch, var(--foreground) 78%, var(--primary) 22%);
+  --memo-shadow: 0 24px 50px -28px hsl(28 30% 34% / 0.24), 0 8px 24px 0 hsl(28 30% 34% / 0.08);
+}

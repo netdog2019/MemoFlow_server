@@ -1,0 +1,30 @@
+:root {
+  --background: oklch(0.208 0.018 58);
+  --foreground: oklch(0.9 0.012 82);
+  --card: oklch(0.252 0.018 58);
+  --card-foreground: oklch(0.9 0.012 82);
+  --popover: oklch(0.268 0.018 58);
+  --popover-foreground: oklch(0.92 0.012 82);
+  --primary: oklch(0.74 0.12 58);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.302 0.018 58);
+  --secondary-foreground: oklch(0.9 0.012 82);
+  --muted: oklch(0.286 0.016 58);
+  --muted-foreground: oklch(0.72 0.012 74);
+  --accent: oklch(0.36 0.04 63);
+  --accent-foreground: oklch(0.95 0.012 82);
+  --destructive: oklch(0.62 0.2 22);
+  --destructive-foreground: oklch(0.98 0.003 265);
+  --border: oklch(0.34 0.014 60);
+  --input: oklch(0.38 0.014 60);
+  --ring: oklch(0.74 0.12 58);
+  --sidebar: oklch(0.19 0.016 58);
+  --sidebar-foreground: oklch(0.84 0.012 82);
+  --sidebar-accent: oklch(0.29 0.026 63);
+  --sidebar-accent-foreground: oklch(0.94 0.012 82);
+  --memo-surface: color-mix(in oklch, var(--card) 88%, white 12%);
+  --memo-surface-strong: color-mix(in oklch, var(--card) 78%, var(--accent) 22%);
+  --memo-chip: color-mix(in oklch, var(--accent) 46%, var(--card) 54%);
+  --memo-chip-foreground: color-mix(in oklch, var(--foreground) 88%, var(--primary) 12%);
+  --memo-shadow: 0 24px 50px -32px hsl(18 30% 6% / 0.55), 0 12px 24px 0 hsl(18 30% 6% / 0.2);
+}
