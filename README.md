@@ -4,6 +4,26 @@ MemoFlow Server is a customized self-hosted memo and knowledge capture system ba
 
 This repository contains both the Go backend and the React frontend. It keeps the upstream Memos 0.27.1 database format so existing 0.27.1 data can be mounted and tested without mixing 0.28 schema changes.
 
+## Screenshots
+
+The screenshots below are from the current MemoFlow interface and show the app's card-based layout, soft green accent color, compact filters, shortcut builder, AI settings, and insight report pages.
+
+| Timeline And Shortcuts | Search Filters |
+| --- | --- |
+| <img src="docs/images/timeline-shortcuts.png" width="420" alt="MemoFlow timeline and shortcuts"> | <img src="docs/images/search-filters.png" width="420" alt="MemoFlow search filters"> |
+
+| Random Roaming | AI Insight Report |
+| --- | --- |
+| <img src="docs/images/random-roaming.png" width="420" alt="MemoFlow random roaming"> | <img src="docs/images/ai-insights-report.png" width="420" alt="MemoFlow AI insight report"> |
+
+| Shortcut Builder | AI Provider Settings |
+| --- | --- |
+| <img src="docs/images/shortcut-builder.png" width="360" alt="MemoFlow shortcut builder"> | <img src="docs/images/ai-provider-settings.png" width="360" alt="MemoFlow AI provider settings"> |
+
+| Server Settings |
+| --- |
+| <img src="docs/images/server-settings.png" width="720" alt="MemoFlow server settings"> |
+
 ## Highlights
 
 - Full-stack app: Go backend, React + TypeScript frontend, SQLite/MySQL/PostgreSQL support.
@@ -163,6 +183,26 @@ Thanks again to these open-source projects:
 MemoFlow Server 是基于 Memos `0.27.1` 的自托管备忘录和知识记录系统定制版。
 
 本仓库同时包含 Go 后端和 React 前端。当前目标是保持 Memos 0.27.1 数据库格式兼容，方便挂载已有 0.27.1 数据进行测试，不混入 0.28 数据库迁移。
+
+## 界面预览
+
+下面的图片来自当前 MemoFlow 界面，可以直观看到卡片布局、浅色背景、绿色强调色、紧凑筛选器、捷径创建、AI 设置和统计洞察等设计。
+
+| 首页与捷径 | 搜索筛选 |
+| --- | --- |
+| <img src="docs/images/timeline-shortcuts.png" width="420" alt="MemoFlow 首页与捷径"> | <img src="docs/images/search-filters.png" width="420" alt="MemoFlow 搜索筛选"> |
+
+| 随机漫游 | AI 洞察统计 |
+| --- | --- |
+| <img src="docs/images/random-roaming.png" width="420" alt="MemoFlow 随机漫游"> | <img src="docs/images/ai-insights-report.png" width="420" alt="MemoFlow AI 洞察统计"> |
+
+| 创建捷径 | AI Provider 设置 |
+| --- | --- |
+| <img src="docs/images/shortcut-builder.png" width="360" alt="MemoFlow 创建捷径"> | <img src="docs/images/ai-provider-settings.png" width="360" alt="MemoFlow AI Provider 设置"> |
+
+| 服务端设置 |
+| --- |
+| <img src="docs/images/server-settings.png" width="720" alt="MemoFlow 服务端设置"> |
 
 ## 主要功能
 
