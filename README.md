@@ -45,6 +45,13 @@ Do not bake database files or uploaded assets into the image.
 
 This customized build is intended to stay compatible with Memos `0.27.1` data.
 
+Migration warning for existing Memos users:
+
+- This software only targets the Memos `v0.27.1` database schema.
+- If your current Memos instance is older than `v0.27.1`, upgrade it to Memos `v0.27.1` first, confirm it starts normally, and then switch to MemoFlow.
+- Back up your database and uploaded assets before any upgrade or switch.
+- Do not mount a database that has already been migrated to Memos `0.28` or newer into this image.
+
 Important notes:
 
 - Keep your existing database and attachments outside the image.
@@ -142,6 +149,13 @@ Do not commit:
 
 This project is based on Memos and keeps the upstream MIT license. See [LICENSE](LICENSE).
 
+## Acknowledgements
+
+Thanks again to these open-source projects:
+
+- [Memos](https://github.com/usememos/memos)
+- [MoeMemosAndroid](https://github.com/mudkipme/MoeMemosAndroid)
+
 ---
 
 # MemoFlow Server 中文说明
@@ -190,6 +204,13 @@ http://localhost:5230
 ## 数据兼容说明
 
 当前定制版本面向 Memos `0.27.1` 数据格式。
+
+已有 Memos 用户迁移警告：
+
+- 本软件只适配 Memos `v0.27.1` 版本的数据库结构。
+- 如果你当前使用的 Memos 低于 `v0.27.1`，必须先升级到 Memos `v0.27.1`，确认原版 Memos 可以正常启动和读取数据后，再切换到 MemoFlow。
+- 升级和切换前，务必先备份数据库和上传附件。
+- 不要把已经升级到 Memos `0.28` 或更高版本的数据库直接挂载到这个镜像中。
 
 注意：
 
@@ -287,3 +308,10 @@ build/memos version
 ## 许可证
 
 本项目基于 Memos，沿用上游 MIT License。详见 [LICENSE](LICENSE)。
+
+## 致谢
+
+再次感谢以下开源项目：
+
+- [Memos](https://github.com/usememos/memos)
+- [MoeMemosAndroid](https://github.com/mudkipme/MoeMemosAndroid)
