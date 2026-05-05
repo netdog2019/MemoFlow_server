@@ -10,19 +10,19 @@ The screenshots below are from the current MemoFlow interface and show the app's
 
 | Timeline And Shortcuts | Search Filters |
 | --- | --- |
-| <img src="docs/images/timeline-shortcuts.png" width="420" alt="MemoFlow timeline and shortcuts"> | <img src="docs/images/search-filters.png" width="420" alt="MemoFlow search filters"> |
+| <img src="docs/2.png" width="420" alt="MemoFlow timeline and shortcuts"> | <img src="docs/PixPin_2026-05-05_16-09-53.png" width="420" alt="MemoFlow search filters"> |
 
 | Random Roaming | AI Insight Report |
 | --- | --- |
-| <img src="docs/images/random-roaming.png" width="420" alt="MemoFlow random roaming"> | <img src="docs/images/ai-insights-report.png" width="420" alt="MemoFlow AI insight report"> |
+| <img src="docs/2.png" width="420" alt="MemoFlow random roaming"> | <img src="docs/3.png" width="420" alt="MemoFlow AI insight report"> |
 
 | Shortcut Builder | AI Provider Settings |
 | --- | --- |
-| <img src="docs/images/shortcut-builder.png" width="360" alt="MemoFlow shortcut builder"> | <img src="docs/images/ai-provider-settings.png" width="360" alt="MemoFlow AI provider settings"> |
+| <img src="docs/PixPin_2026-05-05_16-10-05.png" width="360" alt="MemoFlow shortcut builder"> | <img src="docs/PixPin_2026-05-05_16-10-59.png" width="360" alt="MemoFlow AI provider settings"> |
 
 | Server Settings |
 | --- |
-| <img src="docs/images/server-settings.png" width="720" alt="MemoFlow server settings"> |
+| <img src="docs/PixPin_2026-05-05_16-10-30.png" width="720" alt="MemoFlow server settings"> |
 
 ## Highlights
 
@@ -190,19 +190,19 @@ MemoFlow Server 是基于 Memos `0.27.1` 的自托管备忘录和知识记录系
 
 | 首页与捷径 | 搜索筛选 |
 | --- | --- |
-| <img src="docs/images/timeline-shortcuts.png" width="420" alt="MemoFlow 首页与捷径"> | <img src="docs/images/search-filters.png" width="420" alt="MemoFlow 搜索筛选"> |
+| <img src="docs/2.png" width="420" alt="MemoFlow timeline and shortcuts"> | <img src="docs/PixPin_2026-05-05_16-09-53.png" width="420" alt="MemoFlow search filters"> |
 
 | 随机漫游 | AI 洞察统计 |
 | --- | --- |
-| <img src="docs/images/random-roaming.png" width="420" alt="MemoFlow 随机漫游"> | <img src="docs/images/ai-insights-report.png" width="420" alt="MemoFlow AI 洞察统计"> |
+| <img src="docs/2.png" width="420" alt="MemoFlow random roaming"> | <img src="docs/3.png" width="420" alt="MemoFlow AI insight report"> |
 
 | 创建捷径 | AI Provider 设置 |
 | --- | --- |
-| <img src="docs/images/shortcut-builder.png" width="360" alt="MemoFlow 创建捷径"> | <img src="docs/images/ai-provider-settings.png" width="360" alt="MemoFlow AI Provider 设置"> |
+| <img src="docs/PixPin_2026-05-05_16-10-05.png" width="360" alt="MemoFlow shortcut builder"> | <img src="docs/PixPin_2026-05-05_16-10-59.png" width="360" alt="MemoFlow AI provider settings"> |
 
 | 服务端设置 |
 | --- |
-| <img src="docs/images/server-settings.png" width="720" alt="MemoFlow 服务端设置"> |
+| <img src="docs/PixPin_2026-05-05_16-10-30.png" width="720" alt="MemoFlow server settings"> |
 
 ## 主要功能
 
