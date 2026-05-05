@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { AttachmentListView, RelationListView } from "@/components/MemoMetadata";
 import { cn } from "@/lib/utils";
 import { MemoRelation_Type } from "@/types/proto/api/v1/memo_service_pb";
-import { useTranslate } from "@/utils/i18n";
 import MemoContent from "../../MemoContent";
 import { MemoReactionListView } from "../../MemoReactionListView";
 import { useMemoHandlers } from "../hooks";
@@ -10,14 +9,13 @@ import { useMemoViewContext } from "../MemoViewContext";
 import type { MemoBodyProps } from "../types";
 
 const BlurOverlay: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
-  const t = useTranslate();
   return (
     <div className="absolute inset-0 z-10 pt-4 flex items-center justify-center" onClick={onClick}>
       <button
         type="button"
         className="rounded-lg border border-border bg-card px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-accent hover:bg-accent hover:text-foreground"
       >
-        {t("memo.click-to-show-sensitive-content")}
+        点击显示内容
       </button>
     </div>
   );

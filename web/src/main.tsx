@@ -8,13 +8,15 @@ import { RouterProvider } from "react-router-dom";
 import "./i18n";
 import "./index.css";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { refreshAccessToken } from "@/connect";
+import { syncAmapRuntimeSettings } from "@/components/map/amap-settings";
+import { instanceServiceClient, refreshAccessToken } from "@/connect";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { InstanceProvider, useInstance } from "@/contexts/InstanceContext";
 import { ViewProvider } from "@/contexts/ViewContext";
 import { useLiveMemoRefresh } from "@/hooks/useLiveMemoRefresh";
 import { useTokenRefreshOnFocus } from "@/hooks/useTokenRefreshOnFocus";
 import { queryClient } from "@/lib/query-client";
+import { InstanceSetting_Key } from "@/types/proto/api/v1/instance_service_pb";
 import router from "./router";
 import { applyLocaleEarly } from "./utils/i18n";
 import { applyThemeEarly } from "./utils/theme";
@@ -49,6 +51,24 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
 
   // Live refresh: listen for memo changes via SSE and invalidate caches.
   useLiveMemoRefresh();
+
+  useEffect(() => {
+    if (!currentUser) {
+      return;
+    }
+    void instanceServiceClient
+      .getInstanceSetting({ name: `instance/settings/${InstanceSetting_Key[InstanceSetting_Key.MAP]}` })
+      .then((setting) => {
+        if (setting.value.case !== "mapSetting") {
+          return;
+        }
+        syncAmapRuntimeSettings({
+          apiKey: setting.value.value.amapApiKey,
+          securityJsCode: setting.value.value.amapSecurityJsCode,
+        });
+      })
+      .catch(() => undefined);
+  }, [currentUser]);
 
   if (!authInitialized || !instanceInitialized) {
     return null;

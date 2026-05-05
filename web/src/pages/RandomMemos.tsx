@@ -36,6 +36,7 @@ const RandomMemos = () => {
     filter: creatorFilter,
   });
   const [seed, setSeed] = useState(randomSeed);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const memos = useMemo(() => data?.pages.flatMap((page) => page.memos) ?? [], [data]);
   const displayCount = randomCount ?? RANDOM_MEMOS_DEFAULT_COUNT;
   const randomMemos = useMemo(() => shuffleMemos(memos, seed).slice(0, displayCount), [displayCount, memos, seed]);
@@ -45,6 +46,12 @@ const RandomMemos = () => {
       void fetchNextPage();
     }
   }, [fetchNextPage, hasNextPage, isFetchingNextPage, sampleScope]);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    setSeed(randomSeed());
+    window.setTimeout(() => setIsRefreshing(false), 420);
+  };
 
   return (
     <div className="w-full min-h-full bg-transparent text-foreground">
@@ -56,8 +63,8 @@ const RandomMemos = () => {
               从{getDiscoveryScopeLabel(sampleScope)} memos 中随机出现 {displayCount} 条，可以继续刷新。
             </p>
           </div>
-          <Button onClick={() => setSeed(randomSeed())}>
-            <RefreshCwIcon className="size-4" />
+          <Button onClick={handleRefresh} disabled={isRefreshing} className={isRefreshing ? "scale-[0.98]" : undefined}>
+            <RefreshCwIcon className={isRefreshing ? "size-4 animate-spin" : "size-4"} />
             刷新
           </Button>
         </div>

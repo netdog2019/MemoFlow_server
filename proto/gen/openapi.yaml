@@ -2551,6 +2551,8 @@ components:
                     $ref: '#/components/schemas/InstanceSetting_NotificationSetting'
                 aiSetting:
                     $ref: '#/components/schemas/InstanceSetting_AISetting'
+                mapSetting:
+                    $ref: '#/components/schemas/InstanceSetting_MapSetting'
             description: An instance setting resource.
         InstanceSetting_AIProviderConfig:
             type: object
@@ -2580,6 +2582,37 @@ components:
                     readOnly: true
                     type: string
                     description: api_key_hint is a masked hint for the stored API key.
+                model:
+                    type: string
+                    description: model is the default chat or generation model for provider-backed AI features.
+                transcriptionModel:
+                    type: string
+                    description: transcription_model overrides the built-in audio transcription model when supported.
+                systemPrompt:
+                    type: string
+                    description: system_prompt is the default system instruction for generation features.
+                prompt:
+                    type: string
+                    description: prompt is the default task prompt for memo analysis and transcription hints.
+                temperature:
+                    type: number
+                    description: temperature controls response randomness when supported by the provider.
+                    format: float
+                topP:
+                    type: number
+                    description: top_p controls nucleus sampling when supported by the provider.
+                    format: float
+                maxTokens:
+                    type: integer
+                    description: max_tokens limits generated output tokens when supported by the provider.
+                    format: int32
+                timeoutSeconds:
+                    type: integer
+                    description: timeout_seconds is the request timeout hint for provider calls.
+                    format: int32
+                extraOptionsJson:
+                    type: string
+                    description: extra_options_json stores provider-specific JSON options for advanced users.
             description: AIProviderConfig represents one callable AI provider connection.
         InstanceSetting_AISetting:
             type: object
@@ -2623,6 +2656,21 @@ components:
                     type: boolean
                     description: disallow_change_nickname disallows changing nickname.
             description: General instance settings configuration.
+        InstanceSetting_MapSetting:
+            type: object
+            properties:
+                amapApiKey:
+                    type: string
+                    description: amap_api_key is the Gaode/Amap key used for map search and geocoding.
+                amapSecurityJsCode:
+                    writeOnly: true
+                    type: string
+                    description: amap_security_js_code is the JS API security code used by Web JS API keys.
+                amapSecurityJsCodeSet:
+                    readOnly: true
+                    type: boolean
+                    description: amap_security_js_code_set indicates whether a JS security code is stored.
+            description: MapSetting stores instance-wide map provider credentials.
         InstanceSetting_MemoRelatedSetting:
             type: object
             properties:

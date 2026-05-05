@@ -1,10 +1,13 @@
+import { create } from "@bufbuild/protobuf";
 import { ExternalLinkIcon, InfoIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
-import { getAmapRuntimeSettings, getStoredAmapRuntimeSettings, saveAmapRuntimeSettings } from "@/components/map/amap-settings";
+import { getAmapRuntimeSettings, getStoredAmapRuntimeSettings, syncAmapRuntimeSettings } from "@/components/map/amap-settings";
 import { testAmapConnection } from "@/components/map/map-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useInstance } from "@/contexts/InstanceContext";
+import { InstanceSetting_Key, InstanceSetting_MapSettingSchema, InstanceSettingSchema } from "@/types/proto/api/v1/instance_service_pb";
 import SettingGroup from "./SettingGroup";
 import SettingRow from "./SettingRow";
 import SettingSection from "./SettingSection";
@@ -13,16 +16,55 @@ const AMAP_APPLY_URL = "https://console.amap.com/dev/key/app";
 const AMAP_DOC_URL = "https://lbs.amap.com/api/javascript-api-v2/guide/abc/prepare";
 
 const MapSection = () => {
-  const initialSettings = useMemo(() => getStoredAmapRuntimeSettings(), []);
-  const [apiKey, setApiKey] = useState(initialSettings.apiKey);
-  const [securityJsCode, setSecurityJsCode] = useState(initialSettings.securityJsCode);
+  const { mapSetting, updateSetting, fetchSetting } = useInstance();
+  const fallbackSettings = useMemo(() => getStoredAmapRuntimeSettings(), []);
+  const savedApiKey = mapSetting.amapApiKey || fallbackSettings.apiKey;
+  const savedSecurityJsCode = mapSetting.amapSecurityJsCode || fallbackSettings.securityJsCode;
+  const persistedApiKey = mapSetting.amapApiKey || "";
+  const persistedSecurityJsCode = mapSetting.amapSecurityJsCode || "";
+  const [apiKey, setApiKey] = useState(savedApiKey);
+  const [securityJsCode, setSecurityJsCode] = useState(savedSecurityJsCode);
   const [isTesting, setIsTesting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const hasChanges = apiKey.trim() !== initialSettings.apiKey || securityJsCode.trim() !== initialSettings.securityJsCode;
+  useEffect(() => {
+    void fetchSetting(InstanceSetting_Key.MAP).catch(() => undefined);
+  }, [fetchSetting]);
 
-  const handleSave = () => {
-    saveAmapRuntimeSettings({ apiKey, securityJsCode });
-    toast.success("高德地图设置已保存");
+  useEffect(() => {
+    setApiKey(savedApiKey);
+    setSecurityJsCode(savedSecurityJsCode);
+  }, [savedApiKey, savedSecurityJsCode]);
+
+  const hasChanges = apiKey.trim() !== persistedApiKey || securityJsCode.trim() !== persistedSecurityJsCode;
+
+  const handleSave = async () => {
+    const nextSettings = {
+      apiKey: apiKey.trim(),
+      securityJsCode: securityJsCode.trim(),
+    };
+    try {
+      setIsSaving(true);
+      await updateSetting(
+        create(InstanceSettingSchema, {
+          name: `instance/settings/${InstanceSetting_Key[InstanceSetting_Key.MAP]}`,
+          value: {
+            case: "mapSetting",
+            value: create(InstanceSetting_MapSettingSchema, {
+              amapApiKey: nextSettings.apiKey,
+              amapSecurityJsCode: nextSettings.securityJsCode,
+            }),
+          },
+        }),
+      );
+      await fetchSetting(InstanceSetting_Key.MAP);
+      syncAmapRuntimeSettings(nextSettings);
+      toast.success("高德地图设置已保存到服务器");
+    } catch (error) {
+      toast.error(error instanceof Error ? `高德地图设置保存失败：${error.message}` : "高德地图设置保存失败");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleTestConnection = async () => {
@@ -35,8 +77,7 @@ const MapSection = () => {
     try {
       setIsTesting(true);
       const keyType = await testAmapConnection(testingKey);
-      const keyLabel = apiKey.trim() ? "地图 Key" : "默认地图 Key";
-      toast.success(`${keyLabel} 可用（${keyType === "web-service" ? "Web 服务 API" : "Web 端 JS API"}）`);
+      toast.success(`地图 Key 可用（${keyType === "web-service" ? "Web 服务 API" : "Web 端 JS API"}）`);
     } catch (error) {
       toast.error(error instanceof Error ? `地图 Key 测试失败：${error.message}` : "地图 Key 测试失败");
     } finally {
@@ -47,16 +88,16 @@ const MapSection = () => {
   return (
     <SettingSection title="地图">
       <SettingGroup title="高德地图" description="用于附件位置搜索、逆地理编码、地图缩略图和个人资料地图。">
-        <SettingRow label="地图 Key" description="留空时使用 Memos 自带的默认地图配置。" vertical>
+        <SettingRow label="地图 Key" description="保存到服务器实例设置；同一服务下其他设备登录后会自动使用。" vertical>
           <Input
             className="w-full font-mono"
             value={apiKey}
-            placeholder="可选：请输入高德 Web 服务 Key 或 Web 端 JS API Key"
+            placeholder="请输入高德 Web 服务 Key 或 Web 端 JS API Key"
             onChange={(event) => setApiKey(event.target.value)}
           />
         </SettingRow>
 
-        <SettingRow label="高德安全密钥" description="也叫 securityJsCode；使用 Web 端 JS API Key 时通常需要填写。" vertical>
+        <SettingRow label="高德安全密钥" description="也叫 securityJsCode；会保存到服务器，并同步给浏览器地图运行时。" vertical>
           <Input
             className="w-full font-mono"
             type="password"
@@ -67,7 +108,9 @@ const MapSection = () => {
         </SettingRow>
 
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-[0.85rem] border border-border/60 bg-background/60 px-4 py-3">
-          <span className="text-sm text-muted-foreground">{apiKey.trim() ? "当前将使用自定义地图 Key。" : "当前将使用默认地图。"}</span>
+          <span className="text-sm text-muted-foreground">
+            {apiKey.trim() ? "当前将使用服务器保存的地图 Key。" : "当前未设置地图 Key。"}
+          </span>
           <Button variant="outline" size="sm" onClick={handleTestConnection} disabled={isTesting}>
             {isTesting ? "测试中..." : "测试连接"}
           </Button>
@@ -108,8 +151,8 @@ const MapSection = () => {
       </SettingGroup>
 
       <div className="w-full flex justify-end">
-        <Button disabled={!hasChanges} onClick={handleSave}>
-          保存
+        <Button disabled={!hasChanges || isSaving} onClick={handleSave}>
+          {isSaving ? "保存中..." : "保存"}
         </Button>
       </div>
     </SettingSection>

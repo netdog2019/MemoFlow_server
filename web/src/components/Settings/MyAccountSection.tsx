@@ -26,6 +26,13 @@ const MyAccountSection = () => {
   const accountDialog = useDialog();
   const passwordDialog = useDialog();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [dangerAreaClickCount, setDangerAreaClickCount] = useState(0);
+  const dangerAreaUnlocked = dangerAreaClickCount >= 5;
+  const remainingDangerClicks = Math.max(5 - dangerAreaClickCount, 0);
+
+  const handleDangerAreaClick = () => {
+    setDangerAreaClickCount((count) => Math.min(count + 1, 5));
+  };
 
   const handleDeleteAccount = async () => {
     if (!user?.name) {
@@ -69,23 +76,41 @@ const MyAccountSection = () => {
 
       <AccessTokenSection />
 
-      <SettingGroup showSeparator title={t("setting.account.danger-area")} description={t("setting.account.danger-area-description")}>
-        <div className="flex flex-col gap-3 rounded-[0.85rem] border border-destructive/30 bg-destructive/5 p-4">
-          <div className="flex items-start gap-3">
-            <div className="rounded-full bg-destructive/10 p-2 text-destructive">
-              <AlertTriangleIcon className="h-4 w-4" />
+      <SettingGroup showSeparator title="" description="">
+        <button
+          type="button"
+          className="flex w-full flex-col items-start gap-1 rounded-[0.85rem] px-1 py-1 text-left text-muted-foreground transition-colors hover:text-foreground"
+          onClick={handleDangerAreaClick}
+        >
+          <span className="inline-flex items-center gap-2 text-sm font-medium">
+            <AlertTriangleIcon className="size-4 text-destructive" />
+            {t("setting.account.danger-area")}
+          </span>
+          <span className="text-xs leading-5 text-muted-foreground">
+            {dangerAreaUnlocked
+              ? "危险操作区已解锁。"
+              : `为避免误操作，请连续点击“危险操作区”5 次后显示删除账户操作，还需点击 ${remainingDangerClicks} 次。`}
+          </span>
+        </button>
+
+        {dangerAreaUnlocked && (
+          <div className="flex flex-col gap-3 rounded-[0.85rem] border border-destructive/30 bg-destructive/5 p-4">
+            <div className="flex items-start gap-3">
+              <div className="rounded-full bg-destructive/10 p-2 text-destructive">
+                <AlertTriangleIcon className="h-4 w-4" />
+              </div>
+              <div className="flex-1 space-y-1">
+                <p className="text-sm font-medium text-foreground">{t("setting.account.delete-account")}</p>
+                <p className="text-sm text-muted-foreground">{t("setting.account.delete-account-description")}</p>
+              </div>
             </div>
-            <div className="flex-1 space-y-1">
-              <p className="text-sm font-medium text-foreground">{t("setting.account.delete-account")}</p>
-              <p className="text-sm text-muted-foreground">{t("setting.account.delete-account-description")}</p>
+            <div className="flex justify-end">
+              <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
+                {t("setting.account.delete-account")}
+              </Button>
             </div>
           </div>
-          <div className="flex justify-end">
-            <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
-              {t("setting.account.delete-account")}
-            </Button>
-          </div>
-        </div>
+        )}
       </SettingGroup>
 
       {/* Update Account Dialog */}

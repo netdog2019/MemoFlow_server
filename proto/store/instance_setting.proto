@@ -22,6 +22,8 @@ enum InstanceSettingKey {
   NOTIFICATION = 6;
   // AI is the key for AI provider settings.
   AI = 7;
+  // MAP is the key for map provider settings.
+  MAP = 8;
 }
 
 message InstanceSetting {
@@ -34,6 +36,7 @@ message InstanceSetting {
     InstanceTagsSetting tags_setting = 6;
     InstanceNotificationSetting notification_setting = 7;
     InstanceAISetting ai_setting = 8;
+    InstanceMapSetting map_setting = 9;
   }
 }
 
@@ -151,6 +154,13 @@ message InstanceAISetting {
   repeated AIProviderConfig providers = 1;
 }
 
+message InstanceMapSetting {
+  // amap_api_key is the Gaode/Amap key used for map search and geocoding.
+  string amap_api_key = 1;
+  // amap_security_js_code is the JS API security code used by Web JS API keys.
+  string amap_security_js_code = 2;
+}
+
 message AIProviderConfig {
   string id = 1;
   string title = 2;
@@ -158,6 +168,24 @@ message AIProviderConfig {
   string endpoint = 4;
   // api_key is write-only at the API layer and is required by the server to call providers.
   string api_key = 5;
+  // model is the default chat or generation model for provider-backed AI features.
+  string model = 10;
+  // transcription_model overrides the built-in audio transcription model when supported.
+  string transcription_model = 11;
+  // system_prompt is the default system instruction for generation features.
+  string system_prompt = 12;
+  // prompt is the default task prompt for memo analysis and transcription hints.
+  string prompt = 13;
+  // temperature controls response randomness when supported by the provider.
+  float temperature = 14;
+  // top_p controls nucleus sampling when supported by the provider.
+  float top_p = 15;
+  // max_tokens limits generated output tokens when supported by the provider.
+  int32 max_tokens = 16;
+  // timeout_seconds is the request timeout hint for provider calls.
+  int32 timeout_seconds = 17;
+  // extra_options_json stores provider-specific JSON options for advanced users.
+  string extra_options_json = 18;
 }
 
 enum AIProviderType {

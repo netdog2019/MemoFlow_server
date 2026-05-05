@@ -1,16 +1,14 @@
 export const AMAP_RUNTIME_SETTINGS_STORAGE_KEY = "memos-amap-runtime-settings";
+const AMAP_RUNTIME_SETTINGS_RESET_KEY = "memos-amap-runtime-settings-reset-20260504";
 
 export interface AmapRuntimeSettings {
   apiKey: string;
   securityJsCode: string;
 }
 
-const envAmapApiKey = import.meta.env.VITE_AMAP_WEB_SERVICE_KEY || import.meta.env.VITE_AMAP_JS_API_KEY || "";
-const envAmapSecurityJsCode = import.meta.env.VITE_AMAP_SECURITY_JS_CODE || "";
-
 export const getDefaultAmapRuntimeSettings = (): AmapRuntimeSettings => ({
-  apiKey: envAmapApiKey,
-  securityJsCode: envAmapSecurityJsCode,
+  apiKey: "",
+  securityJsCode: "",
 });
 
 export const getStoredAmapRuntimeSettings = (): AmapRuntimeSettings => {
@@ -19,6 +17,11 @@ export const getStoredAmapRuntimeSettings = (): AmapRuntimeSettings => {
   }
 
   try {
+    if (!window.localStorage.getItem(AMAP_RUNTIME_SETTINGS_RESET_KEY)) {
+      window.localStorage.removeItem(AMAP_RUNTIME_SETTINGS_STORAGE_KEY);
+      window.localStorage.setItem(AMAP_RUNTIME_SETTINGS_RESET_KEY, "1");
+    }
+
     const raw = window.localStorage.getItem(AMAP_RUNTIME_SETTINGS_STORAGE_KEY);
     if (!raw) {
       return { apiKey: "", securityJsCode: "" };
@@ -43,6 +46,9 @@ export const getAmapRuntimeSettings = (): AmapRuntimeSettings => {
 };
 
 export const saveAmapRuntimeSettings = (settings: AmapRuntimeSettings) => {
+  if (typeof window === "undefined") {
+    return;
+  }
   window.localStorage.setItem(
     AMAP_RUNTIME_SETTINGS_STORAGE_KEY,
     JSON.stringify({
@@ -50,6 +56,25 @@ export const saveAmapRuntimeSettings = (settings: AmapRuntimeSettings) => {
       securityJsCode: settings.securityJsCode.trim(),
     }),
   );
+};
+
+export const clearAmapRuntimeSettings = () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.localStorage.removeItem(AMAP_RUNTIME_SETTINGS_STORAGE_KEY);
+};
+
+export const syncAmapRuntimeSettings = (settings: AmapRuntimeSettings) => {
+  const normalized = {
+    apiKey: settings.apiKey.trim(),
+    securityJsCode: settings.securityJsCode.trim(),
+  };
+  if (!normalized.apiKey && !normalized.securityJsCode) {
+    clearAmapRuntimeSettings();
+    return;
+  }
+  saveAmapRuntimeSettings(normalized);
 };
 
 export const applyAmapSecurityConfig = () => {

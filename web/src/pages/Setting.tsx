@@ -102,6 +102,7 @@ const Setting = () => {
     fetchSetting(InstanceSetting_Key.STORAGE);
     fetchSetting(InstanceSetting_Key.TAGS);
     fetchSetting(InstanceSetting_Key.AI);
+    fetchSetting(InstanceSetting_Key.MAP);
   }, [isHost, fetchSetting]);
 
   const handleSectionSelectorItemClick = (section: SettingSection) => {

@@ -267,6 +267,44 @@ func TestGetInstanceSetting(t *testing.T) {
 		require.Empty(t, resp.GetAiSetting().GetProviders())
 	})
 
+	t.Run("GetInstanceSetting - map setting requires authenticated user", func(t *testing.T) {
+		ts := NewTestService(t)
+		defer ts.Cleanup()
+
+		admin, err := ts.CreateHostUser(ctx, "admin")
+		require.NoError(t, err)
+		adminCtx := ts.CreateUserContext(ctx, admin.ID)
+
+		regularUser, err := ts.CreateRegularUser(ctx, "user")
+		require.NoError(t, err)
+		userCtx := ts.CreateUserContext(ctx, regularUser.ID)
+
+		_, err = ts.Service.UpdateInstanceSetting(adminCtx, &v1pb.UpdateInstanceSettingRequest{
+			Setting: &v1pb.InstanceSetting{
+				Name: "instance/settings/MAP",
+				Value: &v1pb.InstanceSetting_MapSetting_{
+					MapSetting: &v1pb.InstanceSetting_MapSetting{
+						AmapApiKey:         "amap-key",
+						AmapSecurityJsCode: "amap-security",
+					},
+				},
+			},
+		})
+		require.NoError(t, err)
+
+		req := &v1pb.GetInstanceSettingRequest{Name: "instance/settings/MAP"}
+		_, err = ts.Service.GetInstanceSetting(ctx, req)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "not authenticated")
+
+		resp, err := ts.Service.GetInstanceSetting(userCtx, req)
+		require.NoError(t, err)
+		require.NotNil(t, resp.GetMapSetting())
+		require.Equal(t, "amap-key", resp.GetMapSetting().GetAmapApiKey())
+		require.Equal(t, "amap-security", resp.GetMapSetting().GetAmapSecurityJsCode())
+		require.True(t, resp.GetMapSetting().GetAmapSecurityJsCodeSet())
+	})
+
 	t.Run("GetInstanceSetting - invalid setting name", func(t *testing.T) {
 		// Create test service for this specific test
 		ts := NewTestService(t)
@@ -616,5 +654,44 @@ func TestUpdateInstanceSetting(t *testing.T) {
 		require.Equal(t, "sk-original", stored.GetProviders()[0].GetApiKey(),
 			"existing AI provider API key must be preserved when an empty value is sent")
 		require.Equal(t, "OpenAI primary", stored.GetProviders()[0].GetTitle())
+	})
+
+	t.Run("UpdateInstanceSetting - map security code is preserved on empty", func(t *testing.T) {
+		ts := NewTestService(t)
+		defer ts.Cleanup()
+
+		hostUser, err := ts.CreateHostUser(ctx, "admin")
+		require.NoError(t, err)
+		adminCtx := ts.CreateUserContext(ctx, hostUser.ID)
+
+		_, err = ts.Service.UpdateInstanceSetting(adminCtx, &v1pb.UpdateInstanceSettingRequest{
+			Setting: &v1pb.InstanceSetting{
+				Name: "instance/settings/MAP",
+				Value: &v1pb.InstanceSetting_MapSetting_{
+					MapSetting: &v1pb.InstanceSetting_MapSetting{
+						AmapApiKey:         "key-v1",
+						AmapSecurityJsCode: "security-v1",
+					},
+				},
+			},
+		})
+		require.NoError(t, err)
+
+		_, err = ts.Service.UpdateInstanceSetting(adminCtx, &v1pb.UpdateInstanceSettingRequest{
+			Setting: &v1pb.InstanceSetting{
+				Name: "instance/settings/MAP",
+				Value: &v1pb.InstanceSetting_MapSetting_{
+					MapSetting: &v1pb.InstanceSetting_MapSetting{
+						AmapApiKey: "key-v2",
+					},
+				},
+			},
+		})
+		require.NoError(t, err)
+
+		stored, err := ts.Store.GetInstanceMapSetting(ctx)
+		require.NoError(t, err)
+		require.Equal(t, "key-v2", stored.GetAmapApiKey())
+		require.Equal(t, "security-v1", stored.GetAmapSecurityJsCode())
 	})
 }

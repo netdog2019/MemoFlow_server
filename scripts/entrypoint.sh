@@ -34,6 +34,8 @@ file_env() {
          exit 1
       fi
       val="$(cat "$val_fileVar")"
+   else
+      val=""
    fi
 
    export "$var"="$val"

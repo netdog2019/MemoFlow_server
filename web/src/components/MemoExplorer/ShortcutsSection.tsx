@@ -1,4 +1,4 @@
-import { Edit3Icon, EllipsisIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { Edit3Icon, EllipsisIcon, ListFilterIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -69,9 +69,12 @@ function ShortcutsSection() {
   };
 
   return (
-    <div className="w-full flex flex-col justify-start items-start mt-3 px-1 h-auto shrink-0 flex-nowrap">
+    <div className="w-full flex flex-col justify-start items-start mt-3 px-1 pt-3 h-auto shrink-0 flex-nowrap border-t border-border/35 first:border-t-0 first:pt-0">
       <div className="flex flex-row justify-between items-center w-full gap-1 mb-1 text-sm leading-6 text-muted-foreground select-none">
-        <span>{t("common.shortcuts")}</span>
+        <span className="inline-flex min-w-0 items-center gap-2">
+          <ListFilterIcon className="size-4 shrink-0" />
+          <span className="truncate">{t("common.shortcuts")}</span>
+        </span>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -83,7 +86,7 @@ function ShortcutsSection() {
           </Tooltip>
         </TooltipProvider>
       </div>
-      <div className="w-full flex flex-row justify-start items-center relative flex-wrap gap-x-2 gap-y-1">
+      <div className="w-full flex flex-row justify-start items-center relative flex-wrap gap-x-2 gap-y-1 pl-4">
         {shortcuts.map((shortcut) => {
           const shortcutId = getShortcutId(shortcut.name);
           const maybeEmoji = shortcut.title.split(" ")[0];

@@ -9,7 +9,7 @@ const (
 	DefaultGeminiTranscriptionModel = "gemini-2.5-flash"
 )
 
-// DefaultTranscriptionModel returns the built-in transcription model for a provider.
+// DefaultTranscriptionModel returns the built-in transcription model for a provider type.
 func DefaultTranscriptionModel(providerType ProviderType) (string, error) {
 	switch providerType {
 	case ProviderOpenAI:
@@ -19,4 +19,12 @@ func DefaultTranscriptionModel(providerType ProviderType) (string, error) {
 	default:
 		return "", errors.Wrapf(ErrCapabilityUnsupported, "provider type %q", providerType)
 	}
+}
+
+// TranscriptionModel returns the configured transcription model or the provider default.
+func TranscriptionModel(provider ProviderConfig) (string, error) {
+	if provider.TranscriptionModel != "" {
+		return provider.TranscriptionModel, nil
+	}
+	return DefaultTranscriptionModel(provider.Type)
 }

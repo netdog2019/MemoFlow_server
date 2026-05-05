@@ -47,7 +47,7 @@ const DiscoverySection = () => {
   const insightScope = normalizeDiscoverySampleScope(insightSampleSize, AI_INSIGHTS_DEFAULT_SAMPLE_SIZE);
 
   return (
-    <div className="w-full flex flex-col justify-start items-start mt-3 px-1 h-auto shrink-0 flex-nowrap">
+    <div className="w-full flex flex-col justify-start items-start mt-3 px-1 pt-3 h-auto shrink-0 flex-nowrap border-t border-border/35 first:border-t-0 first:pt-0">
       <div className="w-full flex flex-col justify-start items-center relative gap-y-1">
         <DiscoveryRow to="/random" label="随机漫游" icon={DicesIcon} onNavigate={() => setShortcut(undefined)}>
           <DropdownMenuLabel>随机漫游设置</DropdownMenuLabel>

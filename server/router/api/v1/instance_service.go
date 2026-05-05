@@ -57,6 +57,8 @@ func (s *APIV1Service) GetInstanceSetting(ctx context.Context, request *v1pb.Get
 		_, err = s.Store.GetInstanceNotificationSetting(ctx)
 	case storepb.InstanceSettingKey_AI:
 		_, err = s.Store.GetInstanceAISetting(ctx)
+	case storepb.InstanceSettingKey_MAP:
+		_, err = s.Store.GetInstanceMapSetting(ctx)
 	default:
 		return nil, status.Errorf(codes.InvalidArgument, "unsupported instance setting key: %v", instanceSettingKey)
 	}
@@ -74,7 +76,7 @@ func (s *APIV1Service) GetInstanceSetting(ctx context.Context, request *v1pb.Get
 		return nil, status.Errorf(codes.NotFound, "instance setting not found")
 	}
 
-	// Storage and notification settings contain credentials; restrict to admins only.
+	// Storage and notification settings contain server-side credentials; restrict to admins only.
 	if instanceSetting.Key == storepb.InstanceSettingKey_STORAGE ||
 		instanceSetting.Key == storepb.InstanceSettingKey_NOTIFICATION {
 		user, err := s.fetchCurrentUser(ctx)
@@ -89,6 +91,15 @@ func (s *APIV1Service) GetInstanceSetting(ctx context.Context, request *v1pb.Get
 		}
 	}
 	if instanceSetting.Key == storepb.InstanceSettingKey_AI {
+		user, err := s.fetchCurrentUser(ctx)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to get current user: %v", err)
+		}
+		if user == nil {
+			return nil, status.Errorf(codes.Unauthenticated, "user not authenticated")
+		}
+	}
+	if instanceSetting.Key == storepb.InstanceSettingKey_MAP {
 		user, err := s.fetchCurrentUser(ctx)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to get current user: %v", err)
@@ -143,6 +154,17 @@ func (s *APIV1Service) UpdateInstanceSetting(ctx context.Context, request *v1pb.
 		if err := s.prepareInstanceAISettingForUpdate(ctx, updateSetting.GetAiSetting()); err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "invalid AI setting: %v", err)
 		}
+	case storepb.InstanceSettingKey_MAP:
+		if mapSetting := updateSetting.GetMapSetting(); mapSetting != nil {
+			mapSetting.AmapApiKey = strings.TrimSpace(mapSetting.AmapApiKey)
+			mapSetting.AmapSecurityJsCode = strings.TrimSpace(mapSetting.AmapSecurityJsCode)
+			if mapSetting.AmapSecurityJsCode == "" {
+				existing, err := s.Store.GetInstanceMapSetting(ctx)
+				if err == nil && existing != nil {
+					mapSetting.AmapSecurityJsCode = existing.AmapSecurityJsCode
+				}
+			}
+		}
 	default:
 		// No credential preservation needed for other setting types.
 	}
@@ -184,6 +206,10 @@ func convertInstanceSettingFromStore(setting *storepb.InstanceSetting) *v1pb.Ins
 		instanceSetting.Value = &v1pb.InstanceSetting_AiSetting{
 			AiSetting: convertInstanceAISettingFromStore(setting.GetAiSetting()),
 		}
+	case *storepb.InstanceSetting_MapSetting:
+		instanceSetting.Value = &v1pb.InstanceSetting_MapSetting_{
+			MapSetting: convertInstanceMapSettingFromStore(setting.GetMapSetting()),
+		}
 	default:
 		// Leave Value unset for unsupported setting variants.
 	}
@@ -222,6 +248,10 @@ func convertInstanceSettingToStore(setting *v1pb.InstanceSetting) *storepb.Insta
 	case storepb.InstanceSettingKey_AI:
 		instanceSetting.Value = &storepb.InstanceSetting_AiSetting{
 			AiSetting: convertInstanceAISettingToStore(setting.GetAiSetting()),
+		}
+	case storepb.InstanceSettingKey_MAP:
+		instanceSetting.Value = &storepb.InstanceSetting_MapSetting{
+			MapSetting: convertInstanceMapSettingToStore(setting.GetMapSetting()),
 		}
 	default:
 		// Keep the default GeneralSetting value
@@ -434,12 +464,21 @@ func convertInstanceAISettingFromStore(setting *storepb.InstanceAISetting) *v1pb
 		}
 		apiKey := provider.GetApiKey()
 		aiSetting.Providers = append(aiSetting.Providers, &v1pb.InstanceSetting_AIProviderConfig{
-			Id:         provider.GetId(),
-			Title:      provider.GetTitle(),
-			Type:       v1pb.InstanceSetting_AIProviderType(provider.GetType()),
-			Endpoint:   provider.GetEndpoint(),
-			ApiKeySet:  apiKey != "",
-			ApiKeyHint: maskAPIKey(apiKey),
+			Id:                 provider.GetId(),
+			Title:              provider.GetTitle(),
+			Type:               v1pb.InstanceSetting_AIProviderType(provider.GetType()),
+			Endpoint:           provider.GetEndpoint(),
+			ApiKeySet:          apiKey != "",
+			ApiKeyHint:         maskAPIKey(apiKey),
+			Model:              provider.GetModel(),
+			TranscriptionModel: provider.GetTranscriptionModel(),
+			SystemPrompt:       provider.GetSystemPrompt(),
+			Prompt:             provider.GetPrompt(),
+			Temperature:        provider.GetTemperature(),
+			TopP:               provider.GetTopP(),
+			MaxTokens:          provider.GetMaxTokens(),
+			TimeoutSeconds:     provider.GetTimeoutSeconds(),
+			ExtraOptionsJson:   provider.GetExtraOptionsJson(),
 		})
 	}
 	return aiSetting
@@ -458,14 +497,46 @@ func convertInstanceAISettingToStore(setting *v1pb.InstanceSetting_AISetting) *s
 			continue
 		}
 		aiSetting.Providers = append(aiSetting.Providers, &storepb.AIProviderConfig{
-			Id:       provider.GetId(),
-			Title:    provider.GetTitle(),
-			Type:     storepb.AIProviderType(provider.GetType()),
-			Endpoint: provider.GetEndpoint(),
-			ApiKey:   provider.GetApiKey(),
+			Id:                 provider.GetId(),
+			Title:              provider.GetTitle(),
+			Type:               storepb.AIProviderType(provider.GetType()),
+			Endpoint:           provider.GetEndpoint(),
+			ApiKey:             provider.GetApiKey(),
+			Model:              provider.GetModel(),
+			TranscriptionModel: provider.GetTranscriptionModel(),
+			SystemPrompt:       provider.GetSystemPrompt(),
+			Prompt:             provider.GetPrompt(),
+			Temperature:        provider.GetTemperature(),
+			TopP:               provider.GetTopP(),
+			MaxTokens:          provider.GetMaxTokens(),
+			TimeoutSeconds:     provider.GetTimeoutSeconds(),
+			ExtraOptionsJson:   provider.GetExtraOptionsJson(),
 		})
 	}
 	return aiSetting
+}
+
+func convertInstanceMapSettingFromStore(setting *storepb.InstanceMapSetting) *v1pb.InstanceSetting_MapSetting {
+	if setting == nil {
+		return nil
+	}
+
+	return &v1pb.InstanceSetting_MapSetting{
+		AmapApiKey:            setting.GetAmapApiKey(),
+		AmapSecurityJsCodeSet: setting.GetAmapSecurityJsCode() != "",
+		AmapSecurityJsCode:    setting.GetAmapSecurityJsCode(),
+	}
+}
+
+func convertInstanceMapSettingToStore(setting *v1pb.InstanceSetting_MapSetting) *storepb.InstanceMapSetting {
+	if setting == nil {
+		return nil
+	}
+
+	return &storepb.InstanceMapSetting{
+		AmapApiKey:         setting.GetAmapApiKey(),
+		AmapSecurityJsCode: setting.GetAmapSecurityJsCode(),
+	}
 }
 
 func validateInstanceSetting(setting *v1pb.InstanceSetting) error {
@@ -526,6 +597,23 @@ func (s *APIV1Service) prepareInstanceAISettingForUpdate(ctx context.Context, se
 		}
 		if provider.Type == storepb.AIProviderType_GEMINI && provider.Endpoint == "" {
 			provider.Endpoint = "https://generativelanguage.googleapis.com/v1beta"
+		}
+		provider.Model = strings.TrimSpace(provider.Model)
+		provider.TranscriptionModel = strings.TrimSpace(provider.TranscriptionModel)
+		provider.SystemPrompt = strings.TrimSpace(provider.SystemPrompt)
+		provider.Prompt = strings.TrimSpace(provider.Prompt)
+		provider.ExtraOptionsJson = strings.TrimSpace(provider.ExtraOptionsJson)
+		if provider.Temperature < 0 || provider.Temperature > 2 {
+			return errors.Errorf("provider %q temperature must be between 0 and 2", provider.Id)
+		}
+		if provider.TopP < 0 || provider.TopP > 1 {
+			return errors.Errorf("provider %q top_p must be between 0 and 1", provider.Id)
+		}
+		if provider.MaxTokens < 0 {
+			return errors.Errorf("provider %q max_tokens cannot be negative", provider.Id)
+		}
+		if provider.TimeoutSeconds < 0 {
+			return errors.Errorf("provider %q timeout_seconds cannot be negative", provider.Id)
 		}
 
 		if provider.ApiKey == "" {

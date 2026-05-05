@@ -57,7 +57,15 @@ func (s *APIV1Service) Transcribe(ctx context.Context, request *v1pb.TranscribeR
 	if request.Config == nil {
 		return nil, status.Errorf(codes.InvalidArgument, "config is required")
 	}
+	provider, model, err := s.resolveAIProviderForTranscription(ctx, request.ProviderId)
+	if err != nil {
+		return nil, err
+	}
+
 	prompt := strings.TrimSpace(request.Config.GetPrompt())
+	if prompt == "" {
+		prompt = strings.TrimSpace(provider.Prompt)
+	}
 	if len(prompt) > maxTranscriptionPromptLength {
 		return nil, status.Errorf(codes.InvalidArgument, "prompt is too long; maximum length is %d characters", maxTranscriptionPromptLength)
 	}
@@ -90,10 +98,6 @@ func (s *APIV1Service) Transcribe(ctx context.Context, request *v1pb.TranscribeR
 		return nil, status.Errorf(codes.InvalidArgument, "audio content type %q is not supported", contentType)
 	}
 
-	provider, model, err := s.resolveAIProviderForTranscription(ctx, request.ProviderId)
-	if err != nil {
-		return nil, err
-	}
 	transcriber, err := ai.NewTranscriber(provider)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "failed to create AI transcriber: %v", err)
@@ -134,7 +138,7 @@ func (s *APIV1Service) resolveAIProviderForTranscription(ctx context.Context, pr
 	if err != nil {
 		return ai.ProviderConfig{}, "", status.Errorf(codes.NotFound, "AI provider not found")
 	}
-	selectedModel, err := ai.DefaultTranscriptionModel(provider.Type)
+	selectedModel, err := ai.TranscriptionModel(*provider)
 	if err != nil {
 		return ai.ProviderConfig{}, "", status.Errorf(codes.InvalidArgument, "%v", err)
 	}
@@ -143,11 +147,20 @@ func (s *APIV1Service) resolveAIProviderForTranscription(ctx context.Context, pr
 
 func convertAIProviderConfigFromStore(provider *storepb.AIProviderConfig) ai.ProviderConfig {
 	return ai.ProviderConfig{
-		ID:       provider.GetId(),
-		Title:    provider.GetTitle(),
-		Type:     convertAIProviderTypeFromStore(provider.GetType()),
-		Endpoint: provider.GetEndpoint(),
-		APIKey:   provider.GetApiKey(),
+		ID:                 provider.GetId(),
+		Title:              provider.GetTitle(),
+		Type:               convertAIProviderTypeFromStore(provider.GetType()),
+		Endpoint:           provider.GetEndpoint(),
+		APIKey:             provider.GetApiKey(),
+		Model:              provider.GetModel(),
+		TranscriptionModel: provider.GetTranscriptionModel(),
+		SystemPrompt:       provider.GetSystemPrompt(),
+		Prompt:             provider.GetPrompt(),
+		Temperature:        provider.GetTemperature(),
+		TopP:               provider.GetTopP(),
+		MaxTokens:          provider.GetMaxTokens(),
+		TimeoutSeconds:     provider.GetTimeoutSeconds(),
+		ExtraOptionsJSON:   provider.GetExtraOptionsJson(),
 	}
 }
 

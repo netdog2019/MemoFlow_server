@@ -60,10 +60,11 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
   const [isTranscribingAudio, setIsTranscribingAudio] = useState(false);
   const [isEditorFocused, setIsEditorFocused] = useState(false);
   const [isEditorFocusPinned, setIsEditorFocusPinned] = useState(false);
+  const [isToolbarMenuOpen, setIsToolbarMenuOpen] = useState(false);
   const [activeInlineStyles, setActiveInlineStyles] = useState<{ bold: boolean; italic: boolean }>({ bold: false, italic: false });
 
   const memoName = memo?.name;
-  const isEditorActive = state.ui.isFocusMode || isEditorFocused || isEditorFocusPinned;
+  const isEditorActive = state.ui.isFocusMode || isEditorFocused || isEditorFocusPinned || isToolbarMenuOpen;
   const contentLengthLimit = memoRelatedSetting.contentLengthLimit || undefined;
   const transcriptionProvider = useMemo(
     () => aiSetting.providers.find((provider) => provider.apiKeySet && TRANSCRIPTION_PROVIDER_TYPES.includes(provider.type)),
@@ -383,6 +384,7 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
             isBoldActive={activeInlineStyles.bold}
             isItalicActive={activeInlineStyles.italic}
             onToolbarAction={keepEditorActive}
+            onTransientActiveChange={setIsToolbarMenuOpen}
           />
         </div>
       </div>

@@ -28,6 +28,7 @@ const InsertMenu = (props: InsertMenuProps) => {
   const { state, actions, dispatch } = useEditorContext();
   const { location: initialLocation, onLocationChange, onToggleFocusMode } = props;
 
+  const [menuOpen, setMenuOpen] = useState(false);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
 
@@ -111,6 +112,14 @@ const InsertMenu = (props: InsertMenuProps) => {
     event.preventDefault();
   };
 
+  const handleMenuOpenChange = useCallback(
+    (open: boolean) => {
+      setMenuOpen(open);
+      props.onOpenChange?.(open);
+    },
+    [props],
+  );
+
   const menuItems = useMemo(
     () =>
       [
@@ -142,7 +151,7 @@ const InsertMenu = (props: InsertMenuProps) => {
   return (
     <>
       <div className="flex items-center gap-1.5">
-        <DropdownMenu modal={false}>
+        <DropdownMenu modal={false} open={menuOpen} onOpenChange={handleMenuOpenChange}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"

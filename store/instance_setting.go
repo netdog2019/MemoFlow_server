@@ -43,6 +43,8 @@ func (s *Store) UpsertInstanceSetting(ctx context.Context, upsert *storepb.Insta
 		valueBytes, err = protojson.Marshal(upsert.GetNotificationSetting())
 	} else if upsert.Key == storepb.InstanceSettingKey_AI {
 		valueBytes, err = protojson.Marshal(upsert.GetAiSetting())
+	} else if upsert.Key == storepb.InstanceSettingKey_MAP {
+		valueBytes, err = protojson.Marshal(upsert.GetMapSetting())
 	} else {
 		return nil, errors.Errorf("unsupported instance setting key: %v", upsert.Key)
 	}
@@ -238,6 +240,26 @@ func (s *Store) GetInstanceAISetting(ctx context.Context) (*storepb.InstanceAISe
 	return instanceAISetting, nil
 }
 
+// GetInstanceMapSetting gets the map provider settings for the instance.
+func (s *Store) GetInstanceMapSetting(ctx context.Context) (*storepb.InstanceMapSetting, error) {
+	instanceSetting, err := s.GetInstanceSetting(ctx, &FindInstanceSetting{
+		Name: storepb.InstanceSettingKey_MAP.String(),
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get instance map setting")
+	}
+
+	instanceMapSetting := &storepb.InstanceMapSetting{}
+	if instanceSetting != nil {
+		instanceMapSetting = instanceSetting.GetMapSetting()
+	}
+	s.instanceSettingCache.Set(ctx, storepb.InstanceSettingKey_MAP.String(), &storepb.InstanceSetting{
+		Key:   storepb.InstanceSettingKey_MAP,
+		Value: &storepb.InstanceSetting_MapSetting{MapSetting: instanceMapSetting},
+	})
+	return instanceMapSetting, nil
+}
+
 const (
 	defaultInstanceStorageType       = storepb.InstanceStorageSetting_LOCAL
 	defaultInstanceUploadSizeLimitMb = 30
@@ -319,6 +341,12 @@ func convertInstanceSettingFromRaw(instanceSettingRaw *InstanceSetting) (*storep
 			return nil, err
 		}
 		instanceSetting.Value = &storepb.InstanceSetting_AiSetting{AiSetting: aiSetting}
+	case storepb.InstanceSettingKey_MAP.String():
+		mapSetting := &storepb.InstanceMapSetting{}
+		if err := protojsonUnmarshaler.Unmarshal([]byte(instanceSettingRaw.Value), mapSetting); err != nil {
+			return nil, err
+		}
+		instanceSetting.Value = &storepb.InstanceSetting_MapSetting{MapSetting: mapSetting}
 	default:
 		// Skip unsupported instance setting key.
 		return nil, nil

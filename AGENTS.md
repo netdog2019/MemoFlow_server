@@ -136,6 +136,7 @@ When packaging a Synology-testable image from this customized 0.27.1 tree:
     -tags netgo,osusergo \
     -o build/memos ./cmd/memos
   ```
+- After frontend changes, never reuse an old `build/memos` binary for the Docker image. The Go binary embeds `server/router/frontend/dist`, so run `pnpm release` first, then rebuild `build/memos`, then copy that fresh binary into the image rootfs before exporting.
 - Verify the binary before packaging:
   ```bash
   ldd build/memos        # should report "not a dynamic executable"
@@ -144,4 +145,5 @@ When packaging a Synology-testable image from this customized 0.27.1 tree:
 - Do not package database or attachment data. Runtime data belongs outside the image and must be mounted to `/var/opt/memos` on Synology.
 - The image tag used for manual export is `memoflow:0.27.1`; container port is `5230`; data volume is `/var/opt/memos`.
 - If Docker/Podman/Buildah are unavailable locally, a `docker load` compatible archive can be generated manually from a static rootfs layer. The archive must contain `manifest.json`, `repositories`, one config JSON, and one layer directory with `VERSION`, `json`, and `layer.tar`. Keep `/var/opt/memos` as an empty directory in the layer.
+- When generating that manual image, verify the final layer entrypoint directly from the exported tar. A previous Synology import failed with `/usr/local/memos/entrypoint.sh: exec: line 14: su-exec: not found` because the exported layer used `scripts/entrypoint.sh` but the manual Alpine rootfs did not include `su-exec`. Install Alpine `su-exec` into the rootfs, for example by extracting `su-exec-0.2-r3.apk` for Alpine 3.21 x86_64 so `/sbin/su-exec` exists. Do not use BusyBox `setpriv` as a fallback with `--reuid/--regid`; BusyBox `setpriv` does not support those util-linux options and fails on Synology imports. The entrypoint intentionally requires `su-exec` when starting as root so missed packaging dependencies fail loudly instead of silently running as root.
 - Source backup archives should exclude `.git`, `.agents`, `.codex`, `.dev-data`, `.dev-cache`, `web/node_modules`, build outputs, root `memos`, database files, logs, and uploaded assets.

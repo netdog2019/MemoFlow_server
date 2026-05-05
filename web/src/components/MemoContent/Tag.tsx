@@ -31,6 +31,7 @@ export const Tag: React.FC<TagProps> = ({ "data-tag": dataTag, children, classNa
   const tagStyle: React.CSSProperties | undefined = bgHex
     ? {
         color: `color-mix(in srgb, ${bgHex} 60%, black)`,
+        backgroundColor: `color-mix(in srgb, ${bgHex} 18%, transparent)`,
         ...style,
       }
     : style;
@@ -64,8 +65,8 @@ export const Tag: React.FC<TagProps> = ({ "data-tag": dataTag, children, classNa
   return (
     <span
       className={cn(
-        "inline-flex items-center align-baseline px-0.5 py-0 text-[0.9em] leading-none font-normal cursor-pointer transition-opacity hover:opacity-75",
-        !bgHex && "text-primary",
+        "inline-flex items-center align-baseline rounded-md px-1.5 py-0.5 text-[0.9em] leading-none font-normal cursor-pointer transition-opacity hover:opacity-75",
+        !bgHex && "bg-primary/10 text-primary",
         className,
       )}
       style={tagStyle}

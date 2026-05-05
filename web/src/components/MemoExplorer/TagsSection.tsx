@@ -37,9 +37,12 @@ const TagsSection = (props: Props) => {
   };
 
   return (
-    <div className="w-full flex flex-col justify-start items-start mt-3 px-1 h-auto shrink-0 flex-nowrap">
+    <div className="w-full flex flex-col justify-start items-start mt-3 px-1 pt-3 h-auto shrink-0 flex-nowrap border-t border-border/35 first:border-t-0 first:pt-0">
       <div className="flex flex-row justify-between items-center w-full gap-1 mb-1 text-sm leading-6 text-muted-foreground select-none">
-        <span>{t("common.tags")}</span>
+        <span className="inline-flex min-w-0 items-center gap-2">
+          <TagsIcon className="size-4 shrink-0" />
+          <span className="truncate">{t("common.tags")}</span>
+        </span>
         {tags.length > 0 && (
           <Popover>
             <PopoverTrigger asChild>

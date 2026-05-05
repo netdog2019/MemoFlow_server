@@ -32,6 +32,7 @@ export interface EditorToolbarProps {
   isBoldActive?: boolean;
   isItalicActive?: boolean;
   onToolbarAction?: () => void;
+  onTransientActiveChange?: (isActive: boolean) => void;
 }
 
 export interface EditorMetadataProps {
@@ -71,6 +72,7 @@ export interface InsertMenuProps {
   isItalicActive?: boolean;
   memoName?: string;
   onAudioRecorderClick?: () => void;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export interface TagSuggestionsProps {

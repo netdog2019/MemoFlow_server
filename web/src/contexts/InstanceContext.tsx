@@ -10,6 +10,8 @@ import {
   InstanceSetting_GeneralSetting,
   InstanceSetting_GeneralSettingSchema,
   InstanceSetting_Key,
+  InstanceSetting_MapSetting,
+  InstanceSetting_MapSettingSchema,
   InstanceSetting_MemoRelatedSetting,
   InstanceSetting_MemoRelatedSettingSchema,
   InstanceSetting_StorageSetting,
@@ -42,6 +44,7 @@ interface InstanceContextValue extends InstanceState {
   storageSetting: InstanceSetting_StorageSetting;
   tagsSetting: InstanceSetting_TagsSetting;
   aiSetting: InstanceSetting_AISetting;
+  mapSetting: InstanceSetting_MapSetting;
   initialize: () => Promise<void>;
   fetchSetting: (key: InstanceSetting_Key) => Promise<void>;
   updateSetting: (setting: InstanceSetting) => Promise<void>;
@@ -101,6 +104,14 @@ export function InstanceProvider({ children }: { children: ReactNode }) {
     return create(InstanceSetting_AISettingSchema, {});
   }, [state.settings]);
 
+  const mapSetting = useMemo((): InstanceSetting_MapSetting => {
+    const setting = state.settings.find((s) => s.name === `${instanceSettingNamePrefix}MAP`);
+    if (setting?.value.case === "mapSetting") {
+      return setting.value.value;
+    }
+    return create(InstanceSetting_MapSettingSchema, {});
+  }, [state.settings]);
+
   const initialize = useCallback(async () => {
     setState((prev) => ({ ...prev, isLoading: true }));
     try {
@@ -148,10 +159,10 @@ export function InstanceProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const updateSetting = useCallback(async (setting: InstanceSetting) => {
-    await instanceServiceClient.updateInstanceSetting({ setting });
+    const updatedSetting = await instanceServiceClient.updateInstanceSetting({ setting });
     setState((prev) => ({
       ...prev,
-      settings: [...prev.settings.filter((s) => s.name !== setting.name), setting],
+      settings: [...prev.settings.filter((s) => s.name !== updatedSetting.name), updatedSetting],
     }));
   }, []);
 
@@ -164,11 +175,23 @@ export function InstanceProvider({ children }: { children: ReactNode }) {
       storageSetting,
       tagsSetting,
       aiSetting,
+      mapSetting,
       initialize,
       fetchSetting,
       updateSetting,
     }),
-    [state, generalSetting, memoRelatedSetting, storageSetting, tagsSetting, aiSetting, initialize, fetchSetting, updateSetting],
+    [
+      state,
+      generalSetting,
+      memoRelatedSetting,
+      storageSetting,
+      tagsSetting,
+      aiSetting,
+      mapSetting,
+      initialize,
+      fetchSetting,
+      updateSetting,
+    ],
   );
 
   return <InstanceContext.Provider value={value}>{children}</InstanceContext.Provider>;

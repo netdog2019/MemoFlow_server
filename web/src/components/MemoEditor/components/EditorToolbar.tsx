@@ -53,6 +53,7 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({
   isBoldActive = false,
   isItalicActive = false,
   onToolbarAction,
+  onTransientActiveChange,
 }) => {
   const t = useTranslate();
   const { state, actions, dispatch } = useEditorContext();
@@ -332,6 +333,7 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({
             onFileUploadClick={handleAttachmentUpload}
             onItalicClick={handleItalic}
             isItalicActive={isItalicActive}
+            onOpenChange={onTransientActiveChange}
           />
         </div>
 

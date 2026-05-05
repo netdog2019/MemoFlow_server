@@ -35,6 +35,7 @@ const MemoContent = (props: MemoContentProps) => {
         data-memo-content
         className={cn(
           "relative w-full max-w-full wrap-break-word text-[15px] leading-7 transition-[max-height] duration-300 ease-out",
+          "[&>*:first-child]:mt-[-0.18rem]",
           "[&>*:last-child]:mb-0",
           "[&_.katex-display]:max-w-full",
           "[&_.katex-display]:overflow-x-auto",
